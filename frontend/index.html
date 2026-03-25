@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LALG Scanner</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>LALG Scanner</h1>
+                <p>Ambiente de Desenvolvimento</p>
+            </div>
+        </header>
+
+        <main>
+            <div class="editor-section">
+                <div class="editor-header">
+                    <span>Editor de Código</span>
+                    <button id="btn-scan">Executar Análise</button>
+                </div>
+                <textarea id="source-code" spellcheck="false" placeholder="// Digite seu código LALG..."></textarea>
+            </div>
+
+            <div class="output-section">
+                <div class="output-header">
+                    <span>Lista de Tokens</span>
+                    <span id="token-count" class="badge">0 tokens</span>
+                </div>
+                <div class="table-container">
+                    <table id="tokens-table">
+                        <thead>
+                            <tr>
+                                <th>Ln</th>
+                                <th>Lexema</th>
+                                <th style="text-align: right;">Categoria</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Results -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="error-section" id="error-container" style="display: none;">
+                <div class="error-header">
+                    <span>Erros Encontrados</span>
+                </div>
+                <ul id="error-list">
+                    <!-- Errors will be inserted here -->
+                </ul>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
