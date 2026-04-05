@@ -20,17 +20,29 @@
             <div class="editor-section">
                 <div class="editor-header">
                     <span>Editor de Código</span>
-                    <button id="btn-scan">Executar Análise</button>
+                    <div style="display:flex; gap: 0.5rem;">
+                        <button id="btn-scan">Analisar Léxico</button>
+                    </div>
                 </div>
-                <textarea id="source-code" spellcheck="false" placeholder="// Digite seu código LALG..."></textarea>
+                <textarea id="source-code" spellcheck="false" placeholder="// código LALG...">program meuteste ;
+var
+  var_id : int ;
+  outro_id : int ;
+begin
+  var_id := 10 ;
+  outro_id := 20 ;
+end .</textarea>
             </div>
 
             <div class="output-section">
                 <div class="output-header">
-                    <span>Lista de Tokens</span>
+                    <div style="display:flex; gap:0.5rem;" class="output-tabs">
+                        <button id="tab-tokens" class="tab-btn active">Lista de Tokens</button>
+                        <button id="tab-symbols" class="tab-btn">Tabela de Símbolos</button>
+                    </div>
                     <span id="token-count" class="badge">0 tokens</span>
                 </div>
-                <div class="table-container">
+                <div class="table-container" id="tokens-container">
                     <table id="tokens-table">
                         <thead>
                             <tr>
@@ -40,7 +52,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Results -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="table-container" id="symbols-container" style="display:none;">
+                    <table id="symbols-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Símbolo</th>
+                                <th>Tipo</th>
+                                <th>Categoria</th>
+                                <th>Valor</th>
+                                <th>Usada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         </tbody>
                     </table>
                 </div>
@@ -51,8 +79,38 @@
                     <span>Erros Encontrados</span>
                 </div>
                 <ul id="error-list">
-                    <!-- Errors will be inserted here -->
                 </ul>
+            </div>
+
+            <div class="syntax-section" style="grid-column: 1 / -1; display: flex; flex-direction: column; border: 1px solid var(--border); background-color: var(--bg-secondary);">
+                <div class="editor-header">
+                    <span>Análise Sintática</span>
+                    <div style="display:flex; gap: 0.5rem;">
+                        <button id="btn-parse-start">Começar</button>
+                        <button id="btn-parse-pause" style="display: none; background-color: #f59e0b; color: #000;">Pausar</button>
+                        <button id="btn-parse-step">Passo a Passo</button>
+                        <button id="btn-parse-run">Executar Tudo</button>
+                    </div>
+                </div>
+                <div class="syntax-viewers" id="syntax-viewers" style="margin-top: 0; padding: 1rem; border-top: none;">
+                    <div class="viewer-card">
+                        <div class="viewer-header">Pilha de Símbolos</div>
+                        <div class="stack-view" id="stack-view">
+                        </div>
+                    </div>
+
+                    <div class="viewer-card">
+                        <div class="viewer-header">Entrada Restante</div>
+                        <div class="input-stream" id="input-stream">
+                        </div>
+                    </div>
+
+                    <div class="viewer-card">
+                        <div class="viewer-header">Log de Derivações</div>
+                        <ul class="derivation-log" id="derivation-log">
+                        </ul>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

@@ -4,7 +4,7 @@
     --bg-tertiary: #1a1a1a;
     --text-primary: #ededed;
     --text-secondary: #a1a1a1;
-    --accent: #6db33f; /* Flat Green */
+    --accent: #6db33f; 
     --accent-hover: #5ca032;
     --border: #333333;
     --success: #10b981;
@@ -56,17 +56,15 @@ header p {
 
 main {
     display: grid;
-    grid-template-columns: 1fr 400px;
-    grid-template-rows: 1fr auto;
+    grid-template-columns: 1fr 500px;
+    grid-template-rows: auto auto;
     gap: 1.5rem;
-    height: 75vh;
 }
 
 @media (max-width: 900px) {
     main {
         grid-template-columns: 1fr;
-        grid-template-rows: auto; /* Allow auto height on small screens */
-        height: auto;
+        grid-template-rows: auto; 
     }
 }
 
@@ -76,6 +74,43 @@ main {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    height: 500px; 
+}
+
+.output-tabs {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tab-btn {
+    background: transparent;
+    color: var(--text-primary);
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+    text-transform: none;
+}
+
+.tab-btn:hover {
+    background-color: transparent;
+    opacity: 0.8 !important;
+}
+
+.tab-btn.active {
+    position: relative;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--accent);
 }
 
 .editor-header, .output-header {
@@ -132,8 +167,8 @@ button:hover {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    height: 150px; /* Fixed height for error section */
-    grid-column: 1 / -1; /* Stretch across full width */
+    height: 150px; 
+    grid-column: 1 / -1; 
 }
 
 .error-header {
@@ -203,15 +238,43 @@ td:first-child {
     font-family: 'Fira Code', monospace;
 }
 
-td:nth-child(2) { /* Lexema */
+td:nth-child(2) { 
     font-family: 'Fira Code', monospace;
     color: #e5e5e5;
 }
 
-td:nth-child(3) { /* Categoria */
+td:nth-child(3) { 
     color: var(--accent);
     font-weight: 500;
     text-align: right;
+}
+
+#symbols-table th {
+    text-align: left;
+}
+
+#symbols-table td {
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+}
+
+#symbols-table td:nth-child(1) {
+    color: var(--text-secondary);
+    font-family: 'Fira Code', monospace;
+    width: 40px;
+    text-align: right;
+}
+
+#symbols-table td:nth-child(3),
+#symbols-table td:nth-child(4),
+#symbols-table td:nth-child(5) {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+#symbols-table td:nth-child(6) {
+    font-weight: 500;
 }
 
 tr:hover td {
@@ -231,7 +294,7 @@ tr.error-row td:nth-child(3) {
     font-size: 0.8rem;
 }
 
-/* Custom Scrollbar */
+
 ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -249,4 +312,87 @@ tr.error-row td:nth-child(3) {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+
+.syntax-viewers {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) 1fr 1.5fr;
+    gap: 1rem;
+    margin-top: 1rem;
+    height: 350px;
+}
+
+.viewer-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.viewer-header {
+    background-color: var(--bg-tertiary);
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+
+.stack-view {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    align-items: center;
+    flex: 1;
+}
+
+.stack-item {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    padding: 0.4rem 1rem;
+    min-width: 80%;
+    max-width: 95%;
+    text-align: center;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    word-break: break-word;
+}
+
+.input-stream {
+    padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.input-token {
+    background-color: var(--bg-tertiary);
+    padding: 0.3rem 0.6rem;
+    font-family: 'Fira Code', monospace;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.derivation-log {
+    list-style: none;
+    padding: 1rem;
+    overflow-y: auto;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    flex: 1;
+}
+
+.derivation-log li {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 0.5rem;
 }
