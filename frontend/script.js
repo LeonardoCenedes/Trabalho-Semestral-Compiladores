@@ -28,6 +28,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const stackView = document.getElementById('stack-view');
     const inputStreamView = document.getElementById('input-stream');
     const derivationLog = document.getElementById('derivation-log');
+    
+    // Elementos da árvore
+    const btnToggleTree = document.getElementById('btn-toggle-tree');
+    const treeContainer = document.getElementById('tree-container');
+    const svgEl = d3.select("#parse-tree-svg");
+    let treeData = null;
+    let showingTree = false;
+
+    btnToggleTree.addEventListener('click', () => {
+        showingTree = !showingTree;
+        if (showingTree) {
+            syntaxViewers.style.display = 'none';
+            treeContainer.style.display = 'block';
+            btnToggleTree.textContent = 'Mostrar Tabelas';
+        } else {
+            syntaxViewers.style.display = 'grid'; // ou flex
+            treeContainer.style.display = 'none';
+            btnToggleTree.textContent = 'Mostrar Árvore';
+        }
+    });
 
     tabTokens.addEventListener('click', () => {
         tabTokens.classList.add('active');
@@ -254,6 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
         derivationLog.appendChild(li);
         derivationLog.scrollTop = derivationLog.scrollHeight;
 
+        if (treeContainer.clientWidth > 0 || showingTree) {
+             buildTreeForStep(currentStepIndex);
+        }
+
         currentStepIndex++;
     }
 
@@ -340,6 +364,154 @@ document.addEventListener('DOMContentLoaded', () => {
             scanButton.textContent = 'Analisar Código';
             scanButton.disabled = false;
             scanButton.style.opacity = '1';
+        }
+    }
+
+    // ============================
+    // ÁRVORE SINTÁTICA D3
+    // ============================
+    let treeRoot = { name: "<programa>", children: [], active: true };
+    // svgEl já foi declarado no topo
+    let svgGroup = null;
+    let zoomBehavior = null;
+
+    function buildTreeForStep(maxStep) {
+        // Recriar modelo de árvore simplificado lendo do 0 ao maxStep
+        let idCounter = 0;
+        treeRoot = { name: "<programa>", children: null, active: false, id: idCounter++, isNew: (maxStep === 0) };
+        let traversalStack = [treeRoot];
+
+        for (let i = 0; i <= maxStep; i++) {
+            if (i >= parseSteps.length) break;
+            const acao = parseSteps[i].acao;
+            const isLatest = (i === maxStep);
+
+            if (acao.startsWith("Expandir") || acao.startsWith("Match")) {
+                let targetNode = traversalStack.pop();
+                if (!targetNode) continue;
+
+                if (acao.startsWith("Expandir")) {
+                    const idxToSplit = acao.indexOf("->");
+                    if (idxToSplit !== -1) {
+                        const rhs = acao.substring(idxToSplit + 2).trim();
+                        if (rhs === "ε") {
+                            targetNode.children = [{ name: "ε", id: idCounter++, isNew: isLatest, active: false, children: null }];
+                        } else {
+                            const symbols = rhs.split(" ");
+                            targetNode.children = symbols.map(s => ({
+                                name: s,
+                                id: idCounter++,
+                                isNew: isLatest,
+                                active: false,
+                                children: null
+                            }));
+                            // A pilha cresce ao contrário
+                            for (let j = symbols.length - 1; j >= 0; j--) {
+                                traversalStack.push(targetNode.children[j]);
+                            }
+                        }
+                    }
+                } else if (acao.startsWith("Match")) {
+                    targetNode.isNew = isLatest; // Focus this as matched
+                    targetNode.active = true;
+                }
+            }
+        }
+        drawTree();
+    }
+
+    function initTree() {
+        svgEl.selectAll("*").remove(); // limpar
+        svgGroup = svgEl.append("g");
+        const tw = treeContainer.clientWidth || 800;
+        const th = treeContainer.clientHeight || 500;
+
+        zoomBehavior = d3.zoom().scaleExtent([0.1, 5]).on("zoom", (e) => {
+            svgGroup.attr("transform", e.transform);
+        });
+        svgEl.call(zoomBehavior);
+
+        // centralizar topo inicial
+        const initialZoom = d3.zoomIdentity.translate(tw / 2, 40);
+        svgEl.call(zoomBehavior.transform, initialZoom);
+    }
+
+    function drawTree() {
+        if (!svgGroup) initTree();
+        const root = d3.hierarchy(treeRoot);
+        
+        // Aumentando espaço dinamicamente para evitar sobreposição
+        const myTree = d3.tree()
+            .nodeSize([1, 80])
+            .separation((a, b) => {
+                const widthA = Math.max(90, a.data.name.length * 8 + 20);
+                const widthB = Math.max(90, b.data.name.length * 8 + 20);
+                // Distância baseada na largura de ambos os nós, mais margem
+                const dist = (widthA + widthB) / 2 + 20; 
+                return a.parent === b.parent ? dist : dist + 20;
+            });
+        
+        myTree(root);
+
+        svgGroup.selectAll("*").remove();
+
+        // Links mais visíveis
+        svgGroup.selectAll(".link")
+            .data(root.links())
+            .join("path").attr("class", "link")
+            .attr("d", d3.linkVertical().x(d => d.x).y(d => d.y))
+            .style("fill", "none")
+            .style("stroke", "rgba(150, 150, 150, 0.6)")
+            .style("stroke-width", "2px");
+
+        // Nodes
+        const nodes = svgGroup.selectAll(".node")
+            .data(root.descendants())
+            .join("g").attr("class", "node")
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+
+        // Usar retângulos em vez de círculos para o texto caber direitinho (dimensionados pelo texto)
+        nodes.append("rect")
+            .attr("x", d => {
+                const w = Math.max(90, d.data.name.length * 8 + 20);
+                return -w / 2;
+            })
+            .attr("y", -16)
+            .attr("width", d => Math.max(90, d.data.name.length * 8 + 20))
+            .attr("height", 32)
+            .attr("rx", 6)
+            .attr("ry", 6)
+            .style("fill", d => d.data.isNew ? "#f59e0b" : (d.data.active ? "#10b981" : "#1e40af"))
+            .style("stroke", d => d.data.isNew ? "#ffffff" : "transparent")
+            .style("stroke-width", "2px");
+
+        // Texto com cor branca fixa, fonte mono e centralizado no meio do retângulo
+        nodes.append("text").attr("dy", "5")
+            .attr("x", 0)
+            .style("text-anchor", "middle")
+            .style("fill", "#ffffff")
+            .style("font-size", "13px")
+            .style("font-family", "monospace")
+            .style("font-weight", d => d.data.isNew ? "bold" : "normal")
+            .style("pointer-events", "none") // o clique/mouse passa pelo texto pra pegar o drag
+            .text(d => d.data.name);
+
+        // Autofocus - movendo o zoom para acompanhar o último nó
+        const newNode = root.descendants().find(d => d.data.isNew) || root;
+        if (newNode && showingTree) {
+            const tw = treeContainer.clientWidth || 800;
+            const th = treeContainer.clientHeight || 500;
+            
+            // Pega a escala atual (zoom) do usuário pra não resetar e centraliza exatamente
+            const currentScale = d3.zoomTransform(svgEl.node()).k || 1;
+            const targetZoom = d3.zoomIdentity
+                .translate(tw / 2 - newNode.x * currentScale, (th / 2) - newNode.y * currentScale)
+                .scale(currentScale);
+            
+            svgEl.transition().duration(600).call(
+                zoomBehavior.transform, 
+                targetZoom
+            );
         }
     }
 

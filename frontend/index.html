@@ -90,6 +90,7 @@ end .</textarea>
                         <button id="btn-parse-pause" style="display: none; background-color: #f59e0b; color: #000;">Pausar</button>
                         <button id="btn-parse-step">Passo a Passo</button>
                         <button id="btn-parse-run">Executar Tudo</button>
+                        <button id="btn-toggle-tree" style="background-color: #2563eb; color: white; display: inline-block;">Mostrar Árvore</button>
                     </div>
                 </div>
                 <div class="syntax-viewers" id="syntax-viewers" style="margin-top: 0; padding: 1rem; border-top: none;">
@@ -111,9 +112,15 @@ end .</textarea>
                         </ul>
                     </div>
                 </div>
+                
+                <div class="viewer-card" id="tree-container" style="display: none; height: 500px; width: 100%; border-top: 1px solid var(--border);">
+                    <div class="viewer-header">Árvore de Derivação (Zoom / Pan)</div>
+                    <svg id="parse-tree-svg" style="width: 100%; height: 100%;"></svg>
+                </div>
             </div>
         </main>
     </div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
